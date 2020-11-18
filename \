@@ -4,25 +4,24 @@ Uses Crt;
 Type Produto = Record
     cod: Integer;
     nome: String[80];
-    valor: Double;
     qtd: Integer;
     status: Char;
 End;
 
 Var { Variáveis globais }
-    produtoMem: Produto;
+    produto: Produto;
     arqProdutos: File of Produto;
     escolha: Integer;
-    listaDeStatus: Array [0..3] of Char;
+    listaDeEstados: Array [0..3] of Char;
 
 Procedure inicializarGlobais();
 Begin
     escolha := 0;
 
-    listaDeStatus[0] := 'A';
-    listaDeStatus[1] := 'a';
-    listaDeStatus[2] := 'i';
-    listaDeStatus[3] := 'I';
+    listaDeStatus[0] = 'A';
+    listaDeStatus[1] = 'a';
+    listaDeStatus[2] = 'i';
+    listaDeStatus[3] = 'I';
 End;
 
 { Configura o arquivo }
@@ -50,20 +49,12 @@ Begin
     menuLinha();
 End;
 
-{ Imprime a mensagem 'pressione qualquer tecla para continuar' }
-Procedure mensagemContinuar();
-Begin
-    writeln();
-    writeln('<pressione qualquer tecla para continuar>');
-    readkey();
-End;
-
 { Retorna um erro quando a opção é inválida }
 Procedure opcaoInvalida();
 Begin
     clrScr();
     writeln('Opção inválida, tente novamente');
-    mensagemContinuar();
+    readKey();
 End;
 
 { Tela de finalização do programa }
@@ -72,7 +63,7 @@ Begin
     ClrScr();
     close(arqProdutos);
     writeln('=> Programa encerrado');
-    mensagemContinuar();
+    readkey();
     exit;
 End;
 
@@ -88,7 +79,7 @@ Begin
     writeln('| 5. Sair ');
     menuLinha();
     write('ESCOLHA: ');
-    readln(escolha);
+    read(escolha);
 
     menuPrincipal := escolha;
 End;
@@ -96,11 +87,11 @@ End;
 { Grava um registro no arquivo }
 Procedure gravarRegistro();
 Begin
-    writeln();    
+    
 End;
 
 
-Function validarNegativoInt(campo: String): Integer;
+Procedure validarNegativo(campo: String;);
 Var
     entrada: Integer;
     confirmacao: Boolean;
@@ -110,80 +101,23 @@ Begin
     Repeat 
         ClrScr();
         write(campo);
-        readln(entrada);
+        read(entrada);
 
         if entrada < 0 then
-            Begin
-                write('Valores negativos não são permitidos');
-                mensagemContinuar();
-            End
+        Begin
+            write('Valores negativos não são permitidos');
+            readkey();
         Else
-            Begin
-                confirmacao := true;
-            End;
-
+            confimacao = true;
+        End;
     Until confirmacao = true;
 
-    validarNegativoInt := entrada;
+    validarNegativo := entrada;
 End;
 
-Function validarNegativoDouble(campo: String): Double;
-Var
-    entrada: Double;
-    confirmacao: Boolean;
+Procedure validarCaracteres(campo: String; tamanho: Integer);
 Begin
-    confirmacao := false;
 
-    Repeat 
-        ClrScr();
-        write(campo);
-        readln(entrada);
-
-        if entrada < 0 then
-            Begin
-                write('Valores negativos não são permitidos');
-                mensagemContinuar();
-            End
-        Else
-            Begin
-                confirmacao := true;
-            End;
-
-    Until confirmacao = true;
-
-    validarNegativoDouble := entrada;
-End;
-
-Function validarCaracteres(campo: String; tamanho: Integer): String;
-Var
-    entrada: String;
-    confirmacao: Boolean;
-Begin
-    confirmacao := false;
-
-    Repeat 
-        ClrScr();
-        write(campo);
-        readln(entrada);
-
-        if length(entrada) > tamanho then
-            Begin
-                writeln('ERRO são permitidos apenas ', tamanho, ' caracteres para este campo');
-                mensagemContinuar();
-            End
-        Else
-            Begin
-                confirmacao := true;
-            End;
-
-    Until confirmacao = true;
-
-    validarCaracteres := entrada;
-End;
-
-Function validarStatus(lista: Array of Char): Char;
-Begin
-    validarStatus := 'N';
 End;
 
 { Interface para cadastro de um novo produto }
@@ -191,15 +125,10 @@ Procedure incluirProduto();
 Begin
     seek(arqProdutos, filesize(arqProdutos));
 
-    menuCabecalho('ADICIONAR PRODUTO');
-
-    produtoMem.cod := validarNegativoInt('Código: ');
-    produtoMem.nome := validarCaracteres('Nome: ', 80);
-    produtoMem.valor := validarNegativoDouble('Preço R$ ');
-    produtoMem.qtd := validarNegativoInt('Quantidade: ');
-    produtoMem.status := validarStatus(listaDeStatus);
-
-
+    produto.cod = validarNegativo('Código: ');
+    produto.nome = validarCaracteres('Nome: ', 80);
+    produto.quantidade = validarNegativo('Quantidade: ');
+    produto.status = validarStatus(listaDeStatus);
 
 End;
 
@@ -224,9 +153,8 @@ End;
 
 
 BEGIN
-    Repeat 
+{    Repeat 
         inicializarGlobais();
-        configArquivo();
 
         escolha := menuPrincipal;
 
@@ -239,7 +167,6 @@ BEGIN
         else
             opcaoInvalida();
         end;
-        
-    Until escolha = 5;
-    
+    Until escolha = 5;}
+    validarNegativo('Numero');
 END.
