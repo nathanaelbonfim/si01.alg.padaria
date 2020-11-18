@@ -80,6 +80,7 @@ End;
 { Tela do menu principal }
 Function menuPrincipal: Integer;
 Begin
+    ClrScr();
     menuCabecalho('Padaria do Seu Zé');
     writeln('| 1. Incluir Produto');
     writeln('| 2. Alterar Produto');
@@ -156,6 +157,7 @@ Begin
     validarNegativoDouble := entrada;
 End;
 
+{ Valida a quantidade de caracateres no nome do produto }
 Function validarCaracteres(campo: String; tamanho: Integer): String;
 Var
     entrada: String;
@@ -183,9 +185,36 @@ Begin
     validarCaracteres := entrada;
 End;
 
+{ Valida a entrada do status do produto }
 Function validarStatus(lista: Array of Char): Char;
+Var
+    entrada: Char;
+    confirmacao: Boolean;
+    i: Integer;
 Begin
-    validarStatus := 'N';
+    confirmacao := false;
+
+    Repeat 
+        ClrScr();
+        write('Status do produto [A-Ativo/I-nativo]: ');
+        readln(entrada);
+
+        for i := 0 to length(lista) do
+        Begin
+            if lista[i] = entrada then
+                confirmacao := true;
+        End;
+
+        if not confirmacao then
+        Begin
+            writeln('Status inválido. Utilize "I" ou "A"');
+            mensagemContinuar();
+        End;
+
+    Until confirmacao = true;
+
+    validarStatus := UpCase(entrada);
+
 End;
 
 { Interface para cadastro de um novo produto }
@@ -204,16 +233,38 @@ Begin
     gravarRegistro(); 
 End;
 
+{ Imprime o produto da variável produtoMem }
+Procedure imprimeProduto();
+Begin
+    menuLinha();
+    writeln('Código: ', produtoMem.cod);
+    writeln('Nome..: ', produtoMem.nome);
+    writeln('Valor.: ', produtoMem.valor:2:2);
+    writeln('Qtd...: ', produtoMem.qtd);
+    writeln('Status: ', produtoMem.status);
+End;
+
 { Altera as informações de cadastro de um produto }
 Procedure alterarProduto();
 Begin
-
+        
 End;
 
 { Relatório dos produtos cadastrados }
 Procedure relatorioProdutos();
 Begin
+    seek(arqProdutos, 0);
 
+    ClrScr();
+    menuCabecalho('PRODUTOS CADASTRADOS');
+
+    while not eof(arqProdutos) do
+    Begin
+        read(arqProdutos, produtoMem);
+        imprimeProduto();
+    End;
+    menuLinha();
+    mensagemContinuar();
 End;
 
 { Informações sobre o programa}
