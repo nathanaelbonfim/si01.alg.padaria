@@ -53,7 +53,6 @@ End;
 { Imprime a mensagem 'pressione qualquer tecla para continuar' }
 Procedure mensagemContinuar();
 Begin
-    writeln();
     writeln('<pressione qualquer tecla para continuar>');
     readkey();
 End;
@@ -102,7 +101,7 @@ Begin
     mensagemContinuar();
 End;
 
-
+{ Valição de números inteiros negativos }
 Function validarNegativoInt(campo: String): Integer;
 Var
     entrada: Integer;
@@ -130,6 +129,7 @@ Begin
     validarNegativoInt := entrada;
 End;
 
+{ Validação de números reais negativos }
 Function validarNegativoDouble(campo: String): Double;
 Var
     entrada: Double;
@@ -244,11 +244,78 @@ Begin
     writeln('Status: ', produtoMem.status);
 End;
 
+
+{ Verifica se um produto existe no arquivo e carrega para a memória }
+Function encontrarProduto(codigo: Integer): Boolean;
+Begin
+    seek(arqProdutos, 0);
+
+    while (not eof(arqProdutos)) do
+    Begin
+        read(arqProdutos, produtoMem);
+
+        if produtoMem.cod = codigo then
+        begin
+            encontrarProduto := true;
+            break;
+        End;
+
+    End;
+
+    encontrarProduto := false;
+End;
+
+Procedure editarProduto();
+Begin
+    ClrScr();
+    menuCabecalho('Você editará o produto ');
+    writeln('Código: ', produtoMem.cod);
+    mensagemContinuar();
+
+    produtoMem.nome := validarCaracteres('Nome: ', 80);
+    produtoMem.valor := validarNegativoDouble('Preço R$ ');
+    produtoMem.qtd := validarNegativoInt('Quantidade: ');
+    produtoMem.status := validarStatus(listaDeStatus);
+
+    gravarRegistro();
+End;
+
 { Altera as informações de cadastro de um produto }
 Procedure alterarProduto();
+Var
+    opcaoValida, produtoEncontrado: Boolean;
+    codigo: Integer;
+    escolha: Char;
 Begin
+    opcaoValida := false;
+
+    Repeat
+        ClrScr();
+        menuCabecalho('ALTERAR PRODUTO');
         
+        codigo := validarNegativoInt('Código do produto: ');
+        produtoEncontrado := encontrarProduto(codigo);
+        
+        if not produtoEncontrado then
+            opcaoValida := true
+        else
+            begin
+                writeln('Produto não encontrado. Deseja procurar outro? S/N');
+                read(escolha);
+
+                if (escolha = 'n') OR (escolha = 'N') then
+                    opcaoValida := true;
+            end;
+    Until opcaoValida = true;
+
+
+    if produtoEncontrado then
+        editarProduto();
+
+    menuLinha();
+    mensagemContinuar();
 End;
+
 
 { Relatório dos produtos cadastrados }
 Procedure relatorioProdutos();
@@ -270,16 +337,18 @@ End;
 { Informações sobre o programa}
 Procedure sobre(); 
 Begin
+    writeln('Acadêmico: Nathanael Cavalcanti Bonfim - 2020');
+    writeln('Disciplina: Algoritmos');
 
 End;
 
-
-
 BEGIN
-    Repeat 
-        inicializarGlobais();
-        configArquivo();
 
+    inicializarGlobais();
+    configArquivo();
+
+    Repeat 
+        
         escolha := menuPrincipal;
 
         Case escolha of
