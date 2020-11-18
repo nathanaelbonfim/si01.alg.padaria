@@ -96,7 +96,9 @@ End;
 { Grava um registro no arquivo }
 Procedure gravarRegistro();
 Begin
-    writeln();    
+    write(arqProdutos, produtoMem);    
+    writeln('>> Produto cadastrado');
+    mensagemContinuar();
 End;
 
 
@@ -199,8 +201,7 @@ Begin
     produtoMem.qtd := validarNegativoInt('Quantidade: ');
     produtoMem.status := validarStatus(listaDeStatus);
 
-
-
+    gravarRegistro(); 
 End;
 
 { Altera as informações de cadastro de um produto }
