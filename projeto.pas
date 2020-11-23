@@ -9,20 +9,24 @@ Type Produto = Record
     status: Char;
 End;
 
+Type CaracteresValidos = Record
+    lista: Array [0..3] of Char;
+End;
+
 Var { Variáveis globais }
     produtoMem: Produto;
     arqProdutos: File of Produto;
     escolha: Integer;
-    listaDeStatus: Array [0..3] of Char;
+    statusValido: CaracteresValidos; 
 
 Procedure inicializarGlobais();
 Begin
     escolha := 0;
 
-    listaDeStatus[0] := 'A';
-    listaDeStatus[1] := 'a';
-    listaDeStatus[2] := 'i';
-    listaDeStatus[3] := 'I';
+    statusValido.lista[0] := 'A';
+    statusValido.lista[1] := 'a';
+    statusValido.lista[2] := 'i';
+    statusValido.lista[3] := 'I';
 End;
 
 { Configura o arquivo }
@@ -186,7 +190,7 @@ Begin
 End;
 
 { Valida a entrada do status do produto }
-Function validarStatus(lista: Array of Char): Char;
+Function validarStatus(status: CaracteresValidos): Char;
 Var
     entrada: Char;
     confirmacao: Boolean;
@@ -199,9 +203,9 @@ Begin
         write('Status do produto [A-Ativo/I-nativo]: ');
         readln(entrada);
 
-        for i := 0 to length(lista) do
+        for i := 0 to 4 do
         Begin
-            if lista[i] = entrada then
+            if status.lista[i] = entrada then
                 confirmacao := true;
         End;
 
@@ -228,7 +232,7 @@ Begin
     produtoMem.nome := validarCaracteres('Nome: ', 80);
     produtoMem.valor := validarNegativoDouble('Preço R$ ');
     produtoMem.qtd := validarNegativoInt('Quantidade: ');
-    produtoMem.status := validarStatus(listaDeStatus);
+    produtoMem.status := validarStatus(statusValido);
 
     gravarRegistro(); 
 End;
@@ -247,10 +251,12 @@ End;
 
 { Verifica se um produto existe no arquivo e carrega para a memória }
 Function encontrarProduto(codigo: Integer): Boolean;
+Var
+    i: Integer;
 Begin
     seek(arqProdutos, 0);
 
-    while (not eof(arqProdutos)) do
+    for i := 0 to FileSize(arqProdutos) do
     Begin
         read(arqProdutos, produtoMem);
 
@@ -259,7 +265,6 @@ Begin
             encontrarProduto := true;
             break;
         End;
-
     End;
 
     encontrarProduto := false;
@@ -275,7 +280,7 @@ Begin
     produtoMem.nome := validarCaracteres('Nome: ', 80);
     produtoMem.valor := validarNegativoDouble('Preço R$ ');
     produtoMem.qtd := validarNegativoInt('Quantidade: ');
-    produtoMem.status := validarStatus(listaDeStatus);
+    produtoMem.status := validarStatus(statusValido);
 
     gravarRegistro();
 End;
@@ -296,7 +301,7 @@ Begin
         codigo := validarNegativoInt('Código do produto: ');
         produtoEncontrado := encontrarProduto(codigo);
         
-        if not produtoEncontrado then
+        if produtoEncontrado then
             opcaoValida := true
         else
             begin
@@ -310,6 +315,7 @@ Begin
 
 
     if produtoEncontrado then
+        seek(arqProdutos, filepos(arqProdutos) - 1);
         editarProduto();
 
     menuLinha();
